@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Susurros — Jardín de ideas</title>
+<link rel="icon" href="data:,">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Quicksand:wght@400;500;600;700&display=swap');
+
+:root{
+  --sky-1:#241f3d;
+  --sky-2:#3a3260;
+  --sky-3:#544a7a;
+  --green-1:#b7d8bf;
+  --green-2:#8fc0a0;
+  --green-3:#5f9a76;
+  --pink:#e8bcd6;
+  --gold:#f0dca6;
+  --cream:#f6f1e7;
+  --dim:#c9c2df;
+  --wither:#7a7290;
+}
+
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+
+html{ font-size:18px; }
+body{
+  margin:0; padding:0; min-height:100%;
+  background: radial-gradient(ellipse at 50% -10%, var(--sky-3), var(--sky-1) 65%);
+  font-family:'Quicksand', sans-serif;
+  color:var(--cream);
+  overflow-x:hidden;
+}
+
+body::before{
+  content:'';
+  position:fixed; inset:0;
+  background-image:
+    radial-gradient(1.5px 1.5px at 20px 30px, rgba(255,255,255,.55), transparent),
+    radial-gradient(1.5px 1.5px at 90px 120px, rgba(255,255,255,.4), transparent),
+    radial-gradient(1px 1px at 150px 60px, rgba(255,255,255,.5), transparent),
+    radial-gradient(1px 1px at 220px 180px, rgba(255,255,255,.35), transparent),
+    radial-gradient(2px 2px at 280px 40px, rgba(255,255,255,.5), transparent),
+    radial-gradient(1px 1px at 320px 200px, rgba(255,255,255,.4), transparent);
+  background-repeat: repeat;
+  background-size: 360px 240px;
+  opacity:.8;
+  pointer-events:none;
+  z-index:0;
+}
+
+.moon{
+  position:fixed; top:28px; right:28px;
+  width:46px; height:46px; border-radius:50%;
+  background: radial-gradient(circle at 35% 35%, #fff8e6, var(--gold) 70%);
+  box-shadow: 0 0 30px 6px rgba(240,220,166,.35);
+  z-index:1;
+}
+
+header{
+  position:relative; z-index:2;
+  text-align:center;
+  padding:38px 20px 18px;
+}
+header h1{
+  font-family:'Cormorant Garamond', serif;
+  font-weight:600;
+  font-style:italic;
+  font-size:2.4rem;
+  margin:0;
+  letter-spacing:.5px;
+  background: linear-gradient(90deg, var(--gold), var(--green-1) 60%, var(--pink));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+header p{
+  margin:6px 0 0;
+  font-size:.85rem;
+  color:var(--dim);
+  letter-spacing:.5px;
+}
+
+.rite{
+  text-align:center;
+  font-family:'Cormorant Garamond', serif;
+  font-style:italic;
+  font-size:1.05rem;
+  color:var(--green-1);
+  opacity:.85;
+  margin:0 auto 10px;
+  max-width:340px;
+  position:relative; z-index:2;
+}
+
+.tabs{
+  display:flex; justify-content:center; gap:8px;
+  margin:14px 0 6px;
+  position:relative; z-index:2;
+  flex-wrap:wrap;
+  padding:0 16px;
+}
+.tab{
+  border:1px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.05);
+  color:var(--dim);
+  padding:7px 16px;
+  border-radius:20px;
+  font-family:'Quicksand',sans-serif;
+  font-weight:600;
+  font-size:.8rem;
+  cursor:pointer;
+  transition:.25s;
+}
+.tab.active{
+  background: linear-gradient(90deg, var(--green-2), var(--green-3));
+  color:#152016;
+  border-color:transparent;
+}
+
+.filters{
+  display:flex; gap:10px; flex-wrap:wrap;
+  justify-content:center;
+  padding:14px 20px 8px;
+  position:relative; z-index:2;
+}
+.chip{
+  flex:0 0 auto;
+  border:1px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.04);
+  color:var(--dim);
+  padding:9px 18px;
+  border-radius:18px;
+  font-size:.9rem;
+  font-weight:600;
+  white-space:nowrap;
+  cursor:pointer;
+}
+.chip.active{
+  background:rgba(232,188,214,.22);
+  border-color:var(--pink);
+  color:var(--cream);
+}
+
+main{
+  position:relative; z-index:2;
+  max-width:640px;
+  margin:0 auto;
+  padding:10px 14px 130px;
+  min-height:40vh;
+}
+
+/* GARDEN VIEW */
+#garden{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(108px,1fr));
+  gap:14px;
+  padding-top:10px;
+}
+.plant-card{
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:18px;
+  padding:12px 8px 10px;
+  text-align:center;
+  cursor:pointer;
+  transition:transform .2s;
+  position:relative;
+}
+.plant-card:active{ transform:scale(.96); }
+.plant-card.withered{ opacity:.55; }
+.plant-svg{ width:64px; height:74px; }
+.plant-label{
+  font-size:.68rem;
+  color:var(--dim);
+  margin-top:4px;
+  display:block;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.plant-emo{
+  position:absolute; top:8px; right:10px;
+  font-size:.85rem;
+}
+
+/* LIST VIEW */
+#list{ display:none; flex-direction:column; gap:10px; }
+.idea-row{
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:14px;
+  padding:12px 14px;
+  display:flex; align-items:center; gap:12px;
+  cursor:pointer;
+}
+.idea-row .mini-svg{ width:36px; height:42px; flex:0 0 auto; }
+.idea-row .txt{ flex:1; min-width:0; }
+.idea-row .txt .whisper{
+  font-size:.88rem; color:var(--cream);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.idea-row .txt .meta{
+  font-size:.68rem; color:var(--dim); margin-top:2px;
+}
+
+.empty{
+  text-align:center;
+  color:var(--dim);
+  font-family:'Cormorant Garamond', serif;
+  font-style:italic;
+  font-size:1.1rem;
+  padding:60px 20px;
+  opacity:.8;
+}
+
+/* FAB */
+.fab{
+  position:fixed; bottom:26px; left:50%; transform:translateX(-50%);
+  width:64px; height:64px; border-radius:50%;
+  background: linear-gradient(135deg, var(--green-2), var(--pink));
+  border:none;
+  font-size:1.8rem;
+  color:#1c1530;
+  box-shadow: 0 6px 24px rgba(232,188,214,.35), 0 0 0 6px rgba(255,255,255,.04);
+  cursor:pointer;
+  z-index:5;
+}
+
+/* MODALS */
+.overlay{
+  position:fixed; inset:0; background:rgba(15,12,28,.72);
+  backdrop-filter:blur(3px);
+  display:none; align-items:flex-end; justify-content:center;
+  z-index:20;
+}
+.overlay.show{ display:flex; }
+.sheet{
+  background: linear-gradient(180deg, var(--sky-3), var(--sky-1));
+  border:1px solid rgba(255,255,255,.12);
+  border-bottom:none;
+  width:100%; max-width:640px;
+  border-radius:24px 24px 0 0;
+  padding:22px 20px calc(24px + env(safe-area-inset-bottom));
+  max-height:88vh; overflow-y:auto;
+  animation: rise .25s ease-out;
+}
+@keyframes rise{ from{ transform:translateY(30px); opacity:0;} to{ transform:translateY(0); opacity:1;} }
+.sheet h2{
+  font-family:'Cormorant Garamond', serif;
+  font-style:italic; font-weight:600;
+  font-size:1.5rem; margin:0 0 14px;
+  color:var(--gold);
+}
+.sheet label{
+  display:block; font-size:.72rem; letter-spacing:.5px;
+  color:var(--dim); margin:14px 0 6px; text-transform:uppercase;
+}
+.sheet textarea, .sheet input[type=text]{
+  width:100%; background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:12px; padding:12px;
+  color:var(--cream); font-family:'Quicksand',sans-serif; font-size:.95rem;
+  resize:vertical;
+}
+.sheet textarea{ min-height:80px; }
+.pill-group{ display:flex; flex-wrap:wrap; gap:8px; }
+.pill{
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.05);
+  border-radius:14px; padding:8px 12px;
+  font-size:.8rem; cursor:pointer; color:var(--dim);
+  display:flex; align-items:center; gap:6px;
+}
+.pill.sel{
+  background:rgba(183,216,191,.22);
+  border-color:var(--green-2);
+  color:var(--cream);
+}
+.sheet-actions{
+  display:flex; gap:10px; margin-top:22px;
+}
+.btn{
+  flex:1; padding:13px; border-radius:14px; border:none;
+  font-family:'Quicksand',sans-serif; font-weight:700; font-size:.9rem;
+  cursor:pointer;
+}
+.btn.primary{ background:linear-gradient(90deg,var(--green-2),var(--green-3)); color:#152016; }
+.btn.ghost{ background:transparent; color:var(--dim); border:1px solid rgba(255,255,255,.14); }
+.btn.danger{ background:rgba(232,120,120,.18); color:#f2b0b0; border:1px solid rgba(232,120,120,.3); }
+
+.detail-meta{ display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 4px; }
+.tag{
+  font-size:.7rem; padding:4px 10px; border-radius:12px;
+  background:rgba(255,255,255,.07); color:var(--dim);
+}
+.detail-text{
+  font-size:1rem; line-height:1.5; color:var(--cream);
+  font-family:'Cormorant Garamond', serif; font-size:1.15rem;
+  margin:10px 0 6px;
+}
+.stage-track{ display:flex; gap:6px; margin:16px 0 4px; }
+.stage-btn{
+  flex:1; text-align:center; padding:10px 4px; border-radius:12px;
+  border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.03);
+  font-size:.72rem; color:var(--dim); cursor:pointer;
+}
+.stage-btn.cur{ background:rgba(183,216,191,.2); border-color:var(--green-2); color:var(--cream); }
+
+::-webkit-scrollbar{ width:0; height:0; }
+</style>
+</head>
+<body>
+
+<div class="moon"></div>
+
+<header>
+  <h1>Susurros</h1>
+  <p>tu jardín de ideas que llegan</p>
+</header>
+<div class="rite" id="riteMsg"></div>
+
+<div class="tabs">
+  <button class="tab active" data-view="garden">🌿 Jardín</button>
+  <button class="tab" data-view="list">📜 Lista</button>
+</div>
+
+<div class="filters" id="catFilters"></div>
+
+<main>
+  <div id="garden"></div>
+  <div id="list"></div>
+  <div class="empty" id="emptyMsg" style="display:none;">El jardín aún duerme.<br>Toca ✦ para sembrar tu primer susurro.</div>
+</main>
+
+<button class="fab" id="fabAdd">✦</button>
+
+<!-- ADD/EDIT SHEET -->
+<div class="overlay" id="addOverlay">
+  <div class="sheet">
+    <h2 id="addTitle">Un nuevo susurro</h2>
+    <label>La idea</label>
+    <textarea id="ideaText" placeholder="Escribe lo que llegó..."></textarea>
+
+    <label>¿Qué sentiste al recibirla?</label>
+    <div class="pill-group" id="emoPicker"></div>
+
+    <label>Categoría</label>
+    <div class="pill-group" id="catPicker"></div>
+
+    <div class="sheet-actions">
+      <button class="btn ghost" id="cancelAdd">Cancelar</button>
+      <button class="btn primary" id="saveIdea">Sembrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL SHEET -->
+<div class="overlay" id="detailOverlay">
+  <div class="sheet">
+    <h2>Este susurro</h2>
+    <div class="detail-text" id="detailText"></div>
+    <div class="detail-meta" id="detailMeta"></div>
+
+    <label>Estado</label>
+    <div class="stage-track" id="stageTrack"></div>
+
+    <p style="font-size:.8rem; color:var(--dim); margin:14px 0 4px; line-height:1.5;">
+      💧 <b>Regar</b> no cambia el estado — solo marca que volviste a pensar en esta idea hoy.
+      Sirve para que sepas cuáles siguen vivas en tu mente, aunque aún no avancen.
+      Si una idea pasa 10 días sin agua, empieza a marchitarse (🥀) como recordatorio suave.
+    </p>
+
+    <div class="sheet-actions">
+      <button class="btn ghost" id="waterBtn">💧 Regar (la pensé hoy)</button>
+      <button class="btn danger" id="deleteBtn">Dejar ir</button>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn ghost" id="closeDetail" style="flex:1">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const EMOTIONS = [
+  {id:'asombro', label:'Asombro', icon:'✨'},
+  {id:'urgencia', label:'Urgencia', icon:'🔥'},
+  {id:'calma', label:'Calma', icon:'🌊'},
+  {id:'euforia', label:'Euforia', icon:'⚡'},
+  {id:'inquietud', label:'Inquietud', icon:'🌑'},
+  {id:'melancolia', label:'Melancolía', icon:'💧'},
+];
+const CATEGORIES = ['Proyecto','Espiritual','Negocio','Creativo','Pregunta abierta','Símbolo/Sueño'];
+const STAGES = [
+  {id:'semilla', label:'Semilla', icon:'🌱'},
+  {id:'cultivo', label:'En cultivo', icon:'🌿'},
+  {id:'florecio', label:'Floreció', icon:'🌸'},
+];
+const RITES = [
+  "El silencio también siembra.",
+  "No todas las semillas florecen a la vez.",
+  "Escucha antes de que se desvanezca.",
+  "Un susurro de hoy puede ser tu raíz de mañana.",
+  "Riega lo que aún importa.",
+  "Algunas ideas solo piden ser recordadas.",
+];
+
+const STORE_KEY = 'susurros_ideas_v1';
+let ideas = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
+let currentView = 'garden';
+let activeFilter = 'all';
+let selectedEmo = null;
+let selectedCat = null;
+let editingId = null;
+let detailId = null;
+
+function save(){ localStorage.setItem(STORE_KEY, JSON.stringify(ideas)); }
+function uid(){ return 'i'+Date.now()+Math.random().toString(36).slice(2,7); }
+
+function seededRandom(seed){
+  let s = 0;
+  for(let i=0;i<seed.length;i++) s += seed.charCodeAt(i)*(i+1);
+  return function(){ s = (s*9301+49297)%233280; return s/233280; };
+}
+
+function daysSince(ts){ return (Date.now()-ts)/(1000*60*60*24); }
+function isWithered(idea){ return idea.stage!=='florecio' && daysSince(idea.lastWatered) > 10; }
+
+function plantSVG(idea, size){
+  const rnd = seededRandom(idea.id);
+  const stage = idea.stage;
+  const withered = isWithered(idea);
+  const hue = withered ? '#7a7290' : (
+    idea.emo==='calma' ? '#8fc0d0' :
+    idea.emo==='melancolia' ? '#9aa0c9' :
+    idea.emo==='inquietud' ? '#8f7fae' :
+    '#8fc0a0'
+  );
+  const leafColor = withered ? '#65607a' : '#8fc0a0';
+  const flowerColor = withered ? '#9a8f9f' : (
+    idea.emo==='euforia' ? '#f0dca6' :
+    idea.emo==='asombro' ? '#e8bcd6' :
+    idea.emo==='urgencia' ? '#e8a6a6' :
+    '#e8bcd6'
+  );
+  const bend = (rnd()-0.5)*14;
+  let svg = `<svg viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg">`;
+  svg += `<ellipse cx="40" cy="84" rx="22" ry="4" fill="rgba(255,255,255,0.06)"/>`;
+
+  if(stage==='semilla'){
+    svg += `<path d="M40 84 Q${40+bend*0.3} 70 40 62" stroke="${leafColor}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+    svg += `<ellipse cx="40" cy="60" rx="6" ry="8" fill="${hue}" opacity="0.85"/>`;
+  } else if(stage==='cultivo'){
+    const h1 = 46 - rnd()*6, h2=40-rnd()*8;
+    svg += `<path d="M40 84 Q${40+bend} ${h1} ${38+bend*1.4} ${h2}" stroke="${leafColor}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+    // leaves
+    for(let i=0;i<3;i++){
+      const t = 0.35+i*0.22;
+      const y = 84 - (84-h2)*t;
+      const dir = i%2===0?1:-1;
+      const lx = 40 + bend*t;
+      svg += `<path d="M${lx} ${y} Q${lx+dir*(16+rnd()*6)} ${y-6} ${lx+dir*4} ${y-14}" stroke="${leafColor}" stroke-width="0" fill="${leafColor}" opacity="0.9"/>`;
+    }
+    svg += `<circle cx="${38+bend*1.4}" cy="${h2-4}" r="5" fill="${flowerColor}" opacity="0.7"/>`;
+  } else { // florecio
+    const topY = 30 - rnd()*6;
+    svg += `<path d="M40 84 Q${40+bend} 55 ${36+bend*1.6} ${topY+14}" stroke="${leafColor}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`;
+    for(let i=0;i<4;i++){
+      const t = 0.3+i*0.18;
+      const y = 84 - (84-(topY+14))*t;
+      const dir = i%2===0?1:-1;
+      const lx = 40 + bend*t;
+      svg += `<ellipse cx="${lx+dir*10}" cy="${y-4}" rx="10" ry="5" fill="${leafColor}" opacity="0.9" transform="rotate(${dir*30} ${lx+dir*10} ${y-4})"/>`;
+    }
+    const cx = 36+bend*1.6, cy = topY+10;
+    for(let p=0;p<6;p++){
+      const ang = (p/6)*Math.PI*2;
+      const px = cx + Math.cos(ang)*9;
+      const py = cy + Math.sin(ang)*9;
+      svg += `<ellipse cx="${px}" cy="${py}" rx="6" ry="4.5" fill="${flowerColor}" opacity="0.9" transform="rotate(${ang*57} ${px} ${py})"/>`;
+    }
+    svg += `<circle cx="${cx}" cy="${cy}" r="4.5" fill="#f0dca6"/>`;
+  }
+  svg += `</svg>`;
+  return svg;
+}
+
+function emoIcon(id){ return (EMOTIONS.find(e=>e.id===id)||{}).icon || '✨'; }
+function emoLabel(id){ return (EMOTIONS.find(e=>e.id===id)||{}).label || ''; }
+function stageInfo(id){ return STAGES.find(s=>s.id===id); }
+
+function renderFilters(){
+  const el = document.getElementById('catFilters');
+  const cats = ['all', ...CATEGORIES];
+  el.innerHTML = cats.map(c => {
+    const label = c==='all' ? 'Todas' : c;
+    return `<div class="chip ${activeFilter===c?'active':''}" data-cat="${c}">${label}</div>`;
+  }).join('');
+  el.querySelectorAll('.chip').forEach(chip=>{
+    chip.onclick = ()=>{ activeFilter = chip.dataset.cat; renderFilters(); renderAll(); };
+  });
+}
+
+function filteredIdeas(){
+  let list = activeFilter==='all' ? ideas : ideas.filter(i=>i.cat===activeFilter);
+  return list.slice().sort((a,b)=>b.createdAt-a.createdAt);
+}
+
+function renderAll(){
+  const list = filteredIdeas();
+  document.getElementById('emptyMsg').style.display = list.length? 'none':'block';
+  const garden = document.getElementById('garden');
+  const listEl = document.getElementById('list');
+
+  if(currentView==='garden'){
+    garden.style.display='grid'; listEl.style.display='none';
+    garden.innerHTML = list.map(idea => `
+      <div class="plant-card ${isWithered(idea)?'withered':''}" data-id="${idea.id}">
+        <div class="plant-emo">${emoIcon(idea.emo)}</div>
+        <div class="plant-svg">${plantSVG(idea, 64)}</div>
+        <span class="plant-label">${(idea.text||'').slice(0,18)}</span>
+      </div>
+    `).join('');
+    garden.querySelectorAll('.plant-card').forEach(c=>{
+      c.onclick = ()=> openDetail(c.dataset.id);
+    });
+  } else {
+    garden.style.display='none'; listEl.style.display='flex';
+    listEl.innerHTML = list.map(idea => `
+      <div class="idea-row" data-id="${idea.id}">
+        <div class="mini-svg">${plantSVG(idea, 36)}</div>
+        <div class="txt">
+          <div class="whisper">${(idea.text||'').replace(/</g,'&lt;')}</div>
+          <div class="meta">${emoIcon(idea.emo)} ${emoLabel(idea.emo)} · ${idea.cat} · ${stageInfo(idea.stage).icon}</div>
+        </div>
+      </div>
+    `).join('');
+    listEl.querySelectorAll('.idea-row').forEach(r=>{
+      r.onclick = ()=> openDetail(r.dataset.id);
+    });
+  }
+}
+
+// TAB SWITCH
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick = ()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    currentView = t.dataset.view;
+    renderAll();
+  };
+});
+
+// ADD SHEET
+function openAdd(){
+  editingId = null;
+  document.getElementById('ideaText').value='';
+  selectedEmo = null; selectedCat = null;
+  renderPickers();
+  document.getElementById('addOverlay').classList.add('show');
+}
+function renderPickers(){
+  document.getElementById('emoPicker').innerHTML = EMOTIONS.map(e=>`
+    <div class="pill ${selectedEmo===e.id?'sel':''}" data-emo="${e.id}">${e.icon} ${e.label}</div>
+  `).join('');
+  document.getElementById('catPicker').innerHTML = CATEGORIES.map(c=>`
+    <div class="pill ${selectedCat===c?'sel':''}" data-cat="${c}">${c}</div>
+  `).join('');
+  document.querySelectorAll('#emoPicker .pill').forEach(p=>{
+    p.onclick = ()=>{ selectedEmo = p.dataset.emo; renderPickers(); };
+  });
+  document.querySelectorAll('#catPicker .pill').forEach(p=>{
+    p.onclick = ()=>{ selectedCat = p.dataset.cat; renderPickers(); };
+  });
+}
+document.getElementById('fabAdd').onclick = openAdd;
+document.getElementById('cancelAdd').onclick = ()=> document.getElementById('addOverlay').classList.remove('show');
+
+document.getElementById('saveIdea').onclick = ()=>{
+  const text = document.getElementById('ideaText').value.trim();
+  if(!text){ return; }
+  const emo = selectedEmo || 'asombro';
+  const cat = selectedCat || CATEGORIES[0];
+  const now = Date.now();
+  ideas.push({ id: uid(), text, emo, cat, stage:'semilla', createdAt:now, lastWatered:now });
+  save();
+  document.getElementById('addOverlay').classList.remove('show');
+  renderAll();
+};
+
+// DETAIL SHEET
+function openDetail(id){
+  detailId = id;
+  const idea = ideas.find(i=>i.id===id);
+  if(!idea) return;
+  document.getElementById('detailText').textContent = idea.text;
+  document.getElementById('detailMeta').innerHTML = `
+    <span class="tag">${emoIcon(idea.emo)} ${emoLabel(idea.emo)}</span>
+    <span class="tag">${idea.cat}</span>
+    <span class="tag">${new Date(idea.createdAt).toLocaleDateString('es-PE',{day:'numeric',month:'short',year:'numeric'})}</span>
+    ${isWithered(idea)?'<span class="tag">🥀 marchitándose</span>':''}
+  `;
+  document.getElementById('stageTrack').innerHTML = STAGES.map(s=>`
+    <div class="stage-btn ${idea.stage===s.id?'cur':''}" data-stage="${s.id}">${s.icon}<br>${s.label}</div>
+  `).join('');
+  document.querySelectorAll('.stage-btn').forEach(b=>{
+    b.onclick = ()=>{
+      idea.stage = b.dataset.stage;
+      idea.lastWatered = Date.now();
+      save();
+      openDetail(id);
+      renderAll();
+    };
+  });
+  document.getElementById('detailOverlay').classList.add('show');
+}
+document.getElementById('closeDetail').onclick = ()=> document.getElementById('detailOverlay').classList.remove('show');
+document.getElementById('waterBtn').onclick = ()=>{
+  const idea = ideas.find(i=>i.id===detailId);
+  if(idea){ idea.lastWatered = Date.now(); save(); openDetail(detailId); renderAll(); }
+};
+document.getElementById('deleteBtn').onclick = ()=>{
+  ideas = ideas.filter(i=>i.id!==detailId);
+  save();
+  document.getElementById('detailOverlay').classList.remove('show');
+  renderAll();
+};
+
+// init
+document.getElementById('riteMsg').textContent = RITES[Math.floor(Math.random()*RITES.length)];
+renderFilters();
+renderAll();
+</script>
+</body>
+</html>
